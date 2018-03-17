@@ -29,6 +29,7 @@ from shadowsocks import shell, daemon, eventloop, tcprelay, udprelay, asyncdns
 
 @shell.exception_handle(self_=False, exit_code=1)
 def main():
+
     shell.check_python()
 
     # fix py2exe
@@ -62,6 +63,7 @@ def main():
     signal.signal(signal.SIGINT, int_handler)
 
     daemon.set_user(config.get('user', None))
+
     loop.run()
 
 if __name__ == '__main__':
