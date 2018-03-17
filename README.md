@@ -9,29 +9,29 @@ chmod +x shadowsocks-all.sh
 ./shadowsocks-all.sh 2>&1 | tee shadowsocks-all.log
 
 ### client-side:
-sudo pip install shadowsocks
+pip install shadowsocks
 
 # Run Shadowsocks
 
 ### server-side
-1. ssserver -c /etc/shadowsocks-python/config.json
-2. sudo /etc/init.d/shadowsocks-python start
+ssserver -c /etc/shadowsocks-python/config.json
+
+OR
+
+sudo /etc/init.d/shadowsocks-python start
 
 ### client-side
 sslocal -s 45.32.154.172 -p 14392 -k 1234567890 -m rc4-md5
 
 You need to input the correct parameters:
 
--s: server ip
-
--p: server port for shadowsocks process
-
--k: password
-
--m: encryt method
+1. -s: server ip
+2. -p: server port for shadowsocks process
+3. -k: password
+4. -m: encryt method
 
 
-#Resources:
+# Resources:
 
 [Simple proxy using python](http://voorloopnul.com/blog/a-python-proxy-in-less-than-100-lines-of-code/)
 
