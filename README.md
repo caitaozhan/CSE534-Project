@@ -10,3 +10,11 @@ Resources:
 [翻译](http://blog.csdn.net/whatday/article/details/39668233)
 
 [SOCKS5协议的原理和应用](http://www.cppblog.com/noflybird/archive/2009/12/26/104149.html)
+
+[SOCKS 5协议简析](https://geesun.github.io/posts/2015/09/socks5_protocol.html)
+
+[一些实现思路](https://blog.codingnow.com/2011/05/xtunnel.html)
+
+[你也能写个 Shadowsocks](https://segmentfault.com/a/1190000011862912)
+
+[通过WireShark抓包学习SOCKS5协议](https://www.skyreal.me/tong-guo-wireshark-zhua-bao-xue-xi-socks5-xie-yi/)
