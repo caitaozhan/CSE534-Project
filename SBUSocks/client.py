@@ -25,10 +25,7 @@ class Client:
 
         self.cipher = Cipher()
 
-        self.forward_queue = []
-        self.backward_cache = []
-
-        self.flag = [False, False, False, False]
+        self.socks = []
 
 
     def connect_server(self):
@@ -71,15 +68,12 @@ class Client:
                 break
 
 
-
-    def run(self):
+    def loop(self):
         while True:
 
             local_sock, local_addr = self.local_socket.accept()
             forward = threading.Thread(target=self.handle_local, args=[local_sock,local_addr])
-            forward.start()
-            try:
-                server_sock, server_addr = self.server_socket.accept()
+            server_sock, server_addr = self.server_socket.accept()
             except OSError:
                 connect_server()
                 server_sock, server_addr = self.server_socket.accept()
