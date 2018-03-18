@@ -1,3 +1,6 @@
 .DS_Store
 
 *.pyc
+
+/Reference/.ipynb_checkpoints
+/Reference/read_source_code.ipynb
