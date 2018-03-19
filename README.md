@@ -75,7 +75,7 @@ Lightsocks采用很简单的对称加密法，找一个1-256（一个字节的�
 
 
 ## Shadowsocks关键函数
-'''python
+```python
 # tcprelay.py
 def _on_local_read(self):
     ...
@@ -92,7 +92,7 @@ def _on_local_read(self):
     ...
     elif (is_local and self._stage == STAGE_ADDR): # 还没看懂STAGE_ADDR是干嘛，看起来似乎是和UDP有关
     ...
-'''
+```
 
 
 
