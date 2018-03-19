@@ -39,6 +39,7 @@ def main():
         os.chdir(p)
 
     config = shell.get_config(True)
+    print(config)
     daemon.daemon_exec(config)
 
     logging.info("starting local at %s:%d" %

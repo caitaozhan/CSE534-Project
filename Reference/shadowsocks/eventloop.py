@@ -31,6 +31,7 @@ import logging
 from collections import defaultdict
 
 from shadowsocks import shell
+import pdb
 
 
 __all__ = ['EventLoop', 'POLL_NULL', 'POLL_IN', 'POLL_OUT', 'POLL_ERR',
@@ -164,6 +165,7 @@ class EventLoop(object):
         logging.debug('using event model: %s', model)
 
     def poll(self, timeout=None):
+
         events = self._impl.poll(timeout)
         return [(self._fdmap[fd][0], fd, event) for fd, event in events]
 
@@ -207,15 +209,13 @@ class EventLoop(object):
                     logging.error('poll:%s', e)
                     traceback.print_exc()
                     continue
-
+            
             for sock, fd, event in events:
                 handler = self._fdmap.get(fd, None)
                 if handler is not None:
                     handler = handler[1]
                     try:
-                        #print(sock)
-                        #print(fd)
-                        #print(event)
+                        #print(sock, fd, event)
                         handler.handle_event(sock, fd, event)
                     except (OSError, IOError) as e:
                         shell.print_exception(e)

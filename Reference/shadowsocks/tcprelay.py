@@ -25,6 +25,7 @@ import struct
 import logging
 import traceback
 import random
+import pdb
 
 from shadowsocks import encrypt, eventloop, shell, common
 from shadowsocks.common import parse_header, onetimeauth_verify, \
@@ -756,6 +757,7 @@ class TCPRelay(object):
         now = int(time.time())
         if now - handler.last_activity < eventloop.TIMEOUT_PRECISION:
             # thus we can lower timeout modification frequency
+
             return
         handler.last_activity = now
         index = self._handler_to_timeouts.get(hash(handler), -1)
@@ -815,6 +817,7 @@ class TCPRelay(object):
                 TCPRelayHandler(self, self._fd_to_handlers,
                                 self._eventloop, conn[0], self._config,
                                 self._dns_resolver, self._is_local)
+
             except (OSError, IOError) as e:
                 error_no = eventloop.errno_from_exception(e)
                 if error_no in (errno.EAGAIN, errno.EINPROGRESS,
