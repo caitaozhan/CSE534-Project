@@ -48,6 +48,7 @@ class ClientTCPRelay:
             data = self.remote_conn.recv(self.BUF_SIZE)
         else:
             raise TimeOut
+        self.local_conn.send(data)
 
 
     def handle_message(self, data):
