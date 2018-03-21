@@ -3,6 +3,7 @@ import threading
 import socket
 from cipher import Cipher
 import select
+import sys
 import pdb
 
 
@@ -16,7 +17,7 @@ class TimeOut(Exception):
     pass
 
 class ClientTCPRelay:
-    TIMEOUT = 10
+    TIMEOUT = 5
     BUF_SIZE = 32 * 1024
     STAGE_STREAM = 1
     STAGE_INIT = 0
@@ -32,23 +33,35 @@ class ClientTCPRelay:
     
     def handle_init(self, data):
         if data != b'\x05\x01\x00':
+            self.local_conn.send(b'\x05\xff')
             raise InitFailure
-        self.local_conn.send(b'\x05\00')
-        self.stage = self.STAGE_STREAM
-
-    def handle_stream(self, data):
+        self.local_conn.send(b'\x05\x00')
         self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.remote_conn.connect((self.remote_addr, self.remote_port))
+            
         except:
             raise RemoteClose
-        self.remote_conn.send(data)
-        remote_ready = select.select([self.remote_conn], [], [], self.TIMEOUT)
-        if remote_ready[0]:
-            data = self.remote_conn.recv(self.BUF_SIZE)
-        else:
-            raise TimeOut
-        self.local_conn.send(data)
+        self.stage = self.STAGE_STREAM
+
+    def handle_stream(self, data):
+        
+        print("send server:", data)
+        self.remote_conn.sendall(data)
+        
+        self.remote_conn.setblocking(0)
+        server_data = b''
+        while True:
+            try:
+                buf = self.remote_conn.recv(self.BUF_SIZE)
+            except:
+                break
+            if not buf:
+                break
+            server_data += buf
+     
+        print("receive server:", (len(server_data)), server_data)
+        self.local_conn.sendall(server_data)
 
 
     def handle_message(self, data):
@@ -60,18 +73,18 @@ class ClientTCPRelay:
     def close(self):
         self.local_conn.close()
         if self.remote_conn:
-            self.remote_conn.close() 
+            self.remote_conn.close()
 
     def run(self):
-        while True: 
-            local_ready = select.select([self.local_conn], [], [], self.TIMEOUT)
-            if local_ready[0]:
-                data = self.local_conn.recv(self.BUF_SIZE)
-            else:
-                break
-            print(data)
+        while True:
+            self.local_conn.settimeout(self.TIMEOUT)
             try:
-                self.handle_message(data)
+                data = self.local_conn.recv(self.BUF_SIZE)
+                if not data:
+                    break
+                else:
+                    self.local_conn.settimeout(0)
+                    self.handle_message(data)
             except TimeOut:
                 print("timeout")
                 break
@@ -106,6 +119,7 @@ class Client:
         self.config = config
 
     def new_tcprelay(self, local_sock):
+        local_sock.setblocking(0)
         tcp = ClientTCPRelay(self.config, local_sock)
         tcp.run()
         

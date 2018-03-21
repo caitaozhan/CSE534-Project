@@ -3,6 +3,7 @@ import threading
 import socket
 from cipher import Cipher
 import select
+import sys
 import pdb
 
 
@@ -31,7 +32,7 @@ class SocksPacket:
         pass
 
 class ServerTCPRelay:
-    TIMEOUT = 10
+    TIMEOUT = 5
     BUF_SIZE = 32 * 1024
     STAGE_CONNECTION = 0
     STAGE_STREAM = 1
@@ -50,30 +51,54 @@ class ServerTCPRelay:
     def handle_connection(self, data):
         if data[:3] == b'\x05\x01\x00':
             if data[3] == 0x03:
-                
-                self.target_addr = None
-                self.target_port = int_from_bytes(data[-2:])
-                print(data[3:-2], self.target_port)
+                domain_len = int(data[4])
+                self.server_addr = socket.gethostbyname(data[5:5 + domain_len])
+                self.server_port = int_from_bytes(data[-2:])
+                print("Connecting {}:{}".format(self.server_addr, self.server_port))
+                self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-                #socket.gethostbyname(host)
+            elif data[3] == 0x01:
+                seg = []
+                for i in range(4):
+                    seg.append(str(int(data[4+i])))
+                self.server_addr = '.'.append(seg)
+                self.server_port = int_from_bytes(data[-2:])
+                self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            else:
+                raise ConnectionFailure
+            
+            try:
+                self.remote_conn.connect((self.server_addr, self.server_port))
+                self.remote_conn.setblocking(0)
+                print("Connecting {}:{}".format(self.server_addr, self.server_port))
+                self.local_conn.send(b'\x05\x00\x00\x01\x00\x00\x00\x00\x00\x00')
+                self.stage = self.STAGE_STREAM
+            except:
+                raise ConnectionFailure
+
         else:
-            raise ConnectionFailure
+            self.local_conn.send(b'\x05\x05\x00\x01\x00\x00\x00\x00\x00\x00')
+                
 
 
     def handle_stream(self, data):
-        socks_packet = SocksPacket(data)
-
-        self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            self.remote_conn.connect((self.remote_addr, self.remote_port))
-        except:
-            raise RemoteClose
-        self.remote_conn.send(data)
-        remote_ready = select.select([self.remote_conn], [], [], self.TIMEOUT)
-        if remote_ready[0]:
-            data = self.remote_conn.recv(self.BUF_SIZE)
+        print("send server:", data)
+        self.remote_conn.sendall(data)
+        
+        server_data = b''
+        self.remote_conn.setblocking(0)
+        while True:
+            try:
+                buf = self.remote_conn.recv(self.BUF_SIZE)
+            except:
+                break
+            if not buf:
+                break
+            server_data += buf
         else:
-            raise TimeOut
+            self.remote_conn.settimeout(0)      
+            print("receive server:", server_data)
+            self.local_conn.sendall(server_data)
 
 
     def handle_message(self, data):
@@ -89,13 +114,15 @@ class ServerTCPRelay:
 
     def run(self):
         while True: 
-            local_ready = select.select([self.local_conn], [], [], self.TIMEOUT)
-            if local_ready[0]:
-                data = self.local_conn.recv(self.BUF_SIZE)
-            else:
-                break
+            self.local_conn.settimeout(self.TIMEOUT)
             try:
-                self.handle_message(data)
+                data = self.local_conn.recv(self.BUF_SIZE)
+                if not data:
+                    break
+                else:
+                    self.local_conn.settimeout(0) 
+                    self.handle_message(data)           
+
             except TimeOut:
                 print("timeout")
                 break
@@ -127,6 +154,7 @@ class Server:
         self.config = config
 
     def new_tcprelay(self, local_sock):
+        local_sock.setblocking(0)
         tcp = ServerTCPRelay(self.config, local_sock)
         tcp.run()
         
