@@ -16,6 +16,9 @@ class RemoteClose(Exception):
 class TimeOut(Exception):
     pass
 
+class NoData(Exception):
+    pass
+
 class ClientTCPRelay:
     TIMEOUT = 5
     BUF_SIZE = 32 * 1024
@@ -37,38 +40,25 @@ class ClientTCPRelay:
             raise InitFailure
         self.local_conn.send(b'\x05\x00')
         self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            self.remote_conn.connect((self.remote_addr, self.remote_port))
-            
-        except:
-            raise RemoteClose
+
+        self.remote_conn.connect((self.remote_addr, self.remote_port))
         self.stage = self.STAGE_STREAM
 
-    def handle_stream(self, data):
-        
-        print("send server:", data)
-        self.remote_conn.sendall(data)
-        
-        self.remote_conn.setblocking(0)
-        server_data = b''
-        while True:
-            try:
-                buf = self.remote_conn.recv(self.BUF_SIZE)
-            except:
-                break
-            if not buf:
-                break
-            server_data += buf
-     
-        print("receive server:", (len(server_data)), server_data)
-        self.local_conn.sendall(server_data)
+    def handle_remote_stream(self, sock):
+        data = sock.recv(self.BUF_SIZE)
+        if not data:
+            raise NoData
+        self.local_conn.sendall(data)
 
-
-    def handle_message(self, data):
+    def handle_local_stream(self, sock):
+        data = sock.recv(self.BUF_SIZE)
+        if not data:
+            raise NoData
         if self.stage == self.STAGE_INIT:
             self.handle_init(data)
-        elif self.stage == self.STAGE_STREAM:
-            self.handle_stream(data)
+            self.stage = self.STAGE_STREAM
+        else:
+            self.remote_conn.sendall(data)
 
     def close(self):
         self.local_conn.close()
@@ -77,24 +67,29 @@ class ClientTCPRelay:
 
     def run(self):
         while True:
-            self.local_conn.settimeout(self.TIMEOUT)
-            try:
-                data = self.local_conn.recv(self.BUF_SIZE)
-                if not data:
+            rlist = [self.local_conn]
+            if self.remote_conn:
+                rlist.append(self.remote_conn)
+            read_ready = select.select(rlist,[],[],self.TIMEOUT)
+            if read_ready[0]:
+                conn = read_ready[0][0]
+                try:
+                    if conn == self.local_conn:
+                        self.handle_local_stream(conn)
+                    else:
+                        self.handle_remote_stream(conn)
+                except TimeOut:
+                    print("timeout")
                     break
-                else:
-                    self.local_conn.settimeout(0)
-                    self.handle_message(data)
-            except TimeOut:
-                print("timeout")
-                break
-            except InitFailure:
-                print("Init failed")
-                break
-            except RemoteClose:
-                print("RemoteClose")
-                break
-            except:
+                except InitFailure:
+                    print("Init failed")
+                    break
+                except RemoteClose:
+                    print("RemoteClose")
+                    break
+                except:
+                    break
+            else:
                 break
         print("quit")
         self.close()
