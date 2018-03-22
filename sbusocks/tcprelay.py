@@ -61,28 +61,24 @@ class TCPRelay:
             if data[3] == 0x03:
                 domain_len = int(data[4])
                 self.domain = data[5:5 + domain_len]
-                self.server_addr = socket.gethostbyname(self.domain)
+                self.remote_addr = socket.gethostbyname(self.domain)
                 self.server_port = int_from_bytes(data[-2:])
-                print("Connecting {}:{}".format(self.server_addr, self.server_port))
+                print("Connecting {}:{} from {}:{}".format(self.domain, self.server_port, self.local_addr, self.local_port))
                 self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
             elif data[3] == 0x01:
                 seg = []
                 for i in range(4):
                     seg.append(str(int(data[4+i])))
-                self.server_addr = '.'.append(seg)
+                self.remote_addr = '.'.append(seg)
                 self.server_port = int_from_bytes(data[-2:])
+                print("Connecting {}:{} from {}:{}".format(self.remote_addr, self.server_port, self.local_addr, self.local_port))
                 self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             else:
                 raise ConnectionFailure
             
             try:
-                self.remote_conn.connect((self.server_addr, self.server_port))
-                if self.domain:
-                    target = self.domain 
-                else:
-                    target = self.server_addr,
-                print("Connecting {}:{} from {}:{}".format(target, self.server_port, self.local_conn, self.local_port))
+                self.remote_conn.connect((self.remote_addr, self.server_port))
                 self.local_conn.send(b'\x05\x00\x00\x01\x00\x00\x00\x00\x00\x00')
                 self.stage = self.STAGE_STREAM
             except:
