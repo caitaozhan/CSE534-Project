@@ -4,7 +4,6 @@ import select
 from utility import int_from_bytes
 
 
-
 class InitFailure(Exception):
     pass
 
