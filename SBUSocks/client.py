@@ -20,7 +20,7 @@ class NoData(Exception):
     pass
 
 class ClientTCPRelay:
-    TIMEOUT = 5
+    TIMEOUT = 60
     BUF_SIZE = 32 * 1024
     STAGE_STREAM = 1
     STAGE_INIT = 0
@@ -56,7 +56,6 @@ class ClientTCPRelay:
             raise NoData
         if self.stage == self.STAGE_INIT:
             self.handle_init(data)
-            self.stage = self.STAGE_STREAM
         else:
             self.remote_conn.sendall(data)
 
@@ -114,7 +113,6 @@ class Client:
         self.config = config
 
     def new_tcprelay(self, local_sock):
-        local_sock.setblocking(0)
         tcp = ClientTCPRelay(self.config, local_sock)
         tcp.run()
         
@@ -125,8 +123,6 @@ class Client:
             t = threading.Thread(target = self.new_tcprelay, args=[local_sock])
             t.start()
             
-
-
 
 def main():
     config = {"local_addr": "127.0.0.1",

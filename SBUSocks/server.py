@@ -33,7 +33,7 @@ class SocksPacket:
         pass
 
 class ServerTCPRelay:
-    TIMEOUT = 5
+    TIMEOUT = 60
     BUF_SIZE = 32 * 1024
     STAGE_CONNECTION = 0
     STAGE_STREAM = 1
@@ -80,7 +80,6 @@ class ServerTCPRelay:
             self.local_conn.send(b'\x05\x05\x00\x01\x00\x00\x00\x00\x00\x00')
                 
 
-
     def handle_remote_stream(self, sock):
         data = sock.recv(self.BUF_SIZE)
         if not data:
@@ -89,6 +88,7 @@ class ServerTCPRelay:
 
     def handle_local_stream(self, sock):
         data = sock.recv(self.BUF_SIZE)
+        print(data)
         if not data:
             raise NoData
         if self.stage == self.STAGE_CONNECTION:
@@ -118,7 +118,7 @@ class ServerTCPRelay:
                     print("timeout")
                     break
                 except ConnectionFailure:
-                    print("Init failed")
+                    print("Connection failed")
                     break
                 except RemoteClose:
                     print("RemoteClose")
@@ -147,7 +147,6 @@ class Server:
         self.config = config
 
     def new_tcprelay(self, local_sock):
-        local_sock.setblocking(0)
         tcp = ServerTCPRelay(self.config, local_sock)
         tcp.run()
         
@@ -158,9 +157,6 @@ class Server:
             t = threading.Thread(target = self.new_tcprelay, args=[local_sock])
             t.start()
             
-
-
-
 def main():
     config = {"local_addr": "0.0.0.0",
               "local_port": 9000}
