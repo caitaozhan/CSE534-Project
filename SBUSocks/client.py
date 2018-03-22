@@ -130,9 +130,9 @@ class Client:
 
 def main():
     config = {"local_addr": "127.0.0.1",
-              "local_port": 1080,
-              "server_addr": "127.0.0.1",
-              "server_port": 1234}
+              "local_port": 1081,
+              "server_addr": "45.32.154.172",
+              "server_port": 9000}
     client = Client(config)
     client.loop()
 

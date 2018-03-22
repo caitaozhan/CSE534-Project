@@ -163,7 +163,7 @@ class Server:
 
 def main():
     config = {"local_addr": "0.0.0.0",
-              "local_port": 1234}
+              "local_port": 9000}
     server = Server(config)
     server.loop()
 
