@@ -1,6 +1,6 @@
-CSE 534 Project
+# CSE 534 Project: SBUSocks
 
-# Install Shadowsocks
+## Install Shadowsocks
 ### server-side:
 wget --no-check-certificate -O shadowsocks-all.sh https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-all.sh
 
@@ -31,7 +31,7 @@ You need to input the correct parameters:
 4. -m: encryt method
 
 
-# Resources:
+## Resources:
 
 [Simple proxy using python](http://voorloopnul.com/blog/a-python-proxy-in-less-than-100-lines-of-code/)
 
@@ -51,7 +51,7 @@ You need to input the correct parameters:
 [通过WireShark抓包学习SOCKS5协议](https://www.skyreal.me/tong-guo-wireshark-zhua-bao-xue-xi-socks5-xie-yi/)
 
 
-# 大致构想
+## 大致构想
 
 ### Client:
 
