@@ -2,11 +2,14 @@ from tcprelay import TCPRelay
 import socket
 import threading
 from cipher import Cipher
-        
+from utility import read_config
+import sys 
+
 class Server:
 
     def __init__(self, config):
         self.local_addr = config["local_addr"]
+        config["local_port"] = int(config["local_port"])
         self.local_port = config["local_port"]
 
         self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -31,8 +34,11 @@ class Server:
             t.start()
             
 def main():
-    config = {"local_addr": "0.0.0.0",
-              "local_port": 9000}
+    try:
+        path = sys.argv[1]
+    except:
+        path = "server_config.json"
+    config = read_config(path)
     server = Server(config)
     server.loop()
 
