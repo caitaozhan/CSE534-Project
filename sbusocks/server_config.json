@@ -1,5 +1,5 @@
 {
     "local_ip":"0.0.0.0",
     "local_port":"9000",
-    "cipher":"None",
+    "cipher":"None"
 }
