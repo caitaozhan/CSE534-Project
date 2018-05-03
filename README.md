@@ -95,4 +95,11 @@ def _on_local_read(self):
 ```
 
 
+## 流量混淆
+[如今我这样科学上网](https://medium.com/@unbiniliumm/%E5%A6%82%E4%BB%8A%E6%88%91%E8%BF%99%E6%A0%B7%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91-95187ef07ced)
 
+[simple-obfs](https://github.com/shadowsocks/simple-obfs)
+
+[Network Traffic Obfuscation andAutomated Internet Censorship](https://arxiv.org/pdf/1605.04044.pdf)
+
+[Obfuscated TCP](https://en.wikipedia.org/wiki/Obfuscated_TCP)
