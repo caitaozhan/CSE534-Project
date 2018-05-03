@@ -103,3 +103,5 @@ def _on_local_read(self):
 [Network Traffic Obfuscation andAutomated Internet Censorship](https://arxiv.org/pdf/1605.04044.pdf)
 
 [Obfuscated TCP](https://en.wikipedia.org/wiki/Obfuscated_TCP)
+
+[scramblesuit](https://github.com/NullHypothesis/scramblesuit.git)
