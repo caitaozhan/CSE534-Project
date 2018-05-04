@@ -30,6 +30,7 @@ class Server:
     def loop(self):
         while True:
             local_sock, local_addr = self.local_socket.accept()
+            print("Receive local data from {}".format(local_addr))
             t = threading.Thread(target = self.new_tcprelay, args=[local_sock])
             t.start()
             

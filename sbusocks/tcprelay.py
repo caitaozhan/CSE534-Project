@@ -112,10 +112,14 @@ class TCPRelay:
 
     def run(self):
         while True:
+            # waiting list
             rlist = [self.local_conn]
+
             if self.remote_conn:
                 rlist.append(self.remote_conn)
+
             read_ready = select.select(rlist,[],[],self.TIMEOUT)
+            
             if read_ready[0]:
                 conn = read_ready[0][0]
                 try:
