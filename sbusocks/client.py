@@ -22,7 +22,7 @@ class Client:
         config["server_port"] = int(config["server_port"])
         self.remote_port = config["server_port"]
         
-        self.cipher = Cipher()
+        self.cipher = Cipher(config['key'])
         self.config = config
         self.config["is_client"] = True
 

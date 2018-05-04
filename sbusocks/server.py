@@ -18,7 +18,7 @@ class Server:
         print('Listening at {}:{}'.format(self.local_addr, self.local_port))
 
     
-        self.cipher = Cipher()
+        self.cipher = Cipher(config['key'])
         self.config = config
         self.config["is_client"] = False
 

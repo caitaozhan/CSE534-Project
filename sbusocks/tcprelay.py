@@ -41,6 +41,7 @@ class TCPRelay:
         else:
             self.stage = self.STAGE_CONNECTION
 
+        self.cipher = config['cipher']
         self.domain = None
     
 
@@ -78,13 +79,17 @@ class TCPRelay:
             
             try:
                 self.remote_conn.connect((self.remote_addr, self.server_port))
-                self.local_conn.send(b'\x05\x00\x00\x01\x00\x00\x00\x00\x00\x00')
+                message = b'\x05\x00\x00\x01\x00\x00\x00\x00\x00\x00'
+                message = self.cipher.encrypt(message)
+                self.local_conn.send(message)
                 self.stage = self.STAGE_STREAM
             except:
                 raise ConnectionFailure
 
         else:
-            self.local_conn.send(b'\x05\x05\x00\x01\x00\x00\x00\x00\x00\x00')
+            message = b'\x05\x05\x00\x01\x00\x00\x00\x00\x00\x00'
+            message = self.cipher.encrypt(message)
+            self.local_conn.send(message)
 
 
     def handle_remote_stream(self, sock):
