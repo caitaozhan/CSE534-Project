@@ -2,5 +2,5 @@
 
 *.pyc
 
-/Reference/.ipynb_checkpoints
+*/.ipynb_checkpoints
 /Reference/read_source_code.ipynb
