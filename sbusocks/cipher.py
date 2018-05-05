@@ -16,14 +16,18 @@ class Cipher:
 
 
     def encrypt(self, data):
+        '''
         try:
             data = data.encode()
         except:
             pass
         encrpted_data = bytes([self.encrypt_key[bit] for bit in data])
         return encrpted_data
+        '''
+        return data
 
     def decrypt(self, data):
+        '''
         try:
             data = data.encode()
         except:
@@ -31,10 +35,12 @@ class Cipher:
         decrypt_data = bytes([self.decrypt_key[bit] for bit in data])
 
         return decrypt_data
+        '''
+        return data
 
 def test():
     
-    message = "asdfddkkdff"
+    message = "哈哈"
     key ="LKjp9s3fD"
     cipher = Cipher(key)
     en = cipher.encrypt(message)
