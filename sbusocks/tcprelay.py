@@ -113,7 +113,7 @@ class TCPRelay:
             data = self.cipher.encrypt(data)
         else:
             data = self.cipher.decrypt(data)
-
+        print("Receiving data from the remote")
         self.local_conn.sendall(data)
 
 
