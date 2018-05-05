@@ -46,6 +46,7 @@ class TCPRelay:
     
 
     def handle_init(self, data):
+        # client: handshake with local applications
         if data != b'\x05\x01\x00':
             self.local_conn.send(b'\x05\xff')
             raise InitFailure
@@ -57,6 +58,8 @@ class TCPRelay:
 
 
     def handle_connection(self, data):
+        # server: handshake with client
+        #         store the real destination
         if data[:3] == b'\x05\x01\x00':
             if data[3] == 0x03:
                 domain_len = int(data[4])
@@ -93,21 +96,45 @@ class TCPRelay:
 
 
     def handle_remote_stream(self, sock):
+        # receive data from the remote
+        # if the executor is the server, "remote" means the true destination,
+        # else "remote" means the server. 
+
         data = sock.recv(self.BUF_SIZE)
         if not data:
             raise NoData
+
+        # if the executor is the server, the data should be encrypted before sending to the client
+        if not self.is_client:
+            data = self.cipher.encrypt(data)
+
         self.local_conn.sendall(data)
 
 
     def handle_local_stream(self, sock):
+        # receive data from the local
+        # if the executor is the server, "local" means the client,
+        # else "local" means the local apps. 
         data = sock.recv(self.BUF_SIZE)
         if not data:
             raise NoData
+
+        # handle handshake message
         if self.stage == self.STAGE_INIT:
+            # this means the data is from the local apps
             self.handle_init(data)
         elif self.stage == self.STAGE_CONNECTION:
+            # this means the data is from the client, we should decrypt it first.
+            data = self.cipher.decrypt(data)
             self.handle_connection(data)
         else:
+            # handle normal streams
+            if self.is_client:
+                # data is from the server to the client
+                data = self.cipher.encrypt(data)
+            else:
+                # data is from the client to local applications
+                data = self.cipher.decrypt(data)
             self.remote_conn.sendall(data)
 
     def close(self):
