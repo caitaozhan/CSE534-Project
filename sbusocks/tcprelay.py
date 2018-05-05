@@ -16,6 +16,9 @@ class TimeOut(Exception):
 class NoData(Exception):
     pass
 
+class ConnectionFailure(Exception):
+    pass
+
 
 class TCPRelay:
     TIMEOUT = 60
@@ -73,7 +76,7 @@ class TCPRelay:
                 seg = []
                 for i in range(4):
                     seg.append(str(int(data[4+i])))
-                self.remote_addr = '.'.append(seg)
+                self.remote_addr = '.'.join(seg)
                 self.server_port = int_from_bytes(data[-2:])
                 print("Connecting {}:{} from {}:{}".format(self.remote_addr, self.server_port, self.local_addr, self.local_port))
                 self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
