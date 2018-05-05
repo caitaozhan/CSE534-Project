@@ -101,13 +101,15 @@ class TCPRelay:
         # else "remote" means the server. 
 
         data = sock.recv(self.BUF_SIZE)
-        print(data)
+
         if not data:
             raise NoData
-
+        
         # if the executor is the server, the data should be encrypted before sending to the client
         if not self.is_client:
             data = self.cipher.encrypt(data)
+        else:
+            data = self.cipher.decrypt(data)
 
         self.local_conn.sendall(data)
 
