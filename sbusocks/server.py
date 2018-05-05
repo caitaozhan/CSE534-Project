@@ -20,6 +20,7 @@ class Server:
     
         self.cipher = Cipher(config['key'])
         self.config = config
+        self.config['cipher'] = self.cipher
         self.config["is_client"] = False
 
     def new_tcprelay(self, local_sock):
