@@ -10,9 +10,6 @@ class InitFailure(Exception):
 class RemoteClose(Exception):
     pass
 
-class TimeOut(Exception):
-    pass
-
 class NoData(Exception):
     pass
 
@@ -113,7 +110,7 @@ class TCPRelay:
             data = self.cipher.encrypt(data)
         else:
             data = self.cipher.decrypt(data)
-        print("Receiving data from the remote")
+        #print("Receiving data from the remote")
         self.local_conn.sendall(data)
 
 
@@ -165,18 +162,22 @@ class TCPRelay:
                         self.handle_local_stream(conn)
                     else:
                         self.handle_remote_stream(conn)
-                except TimeOut:
-                    print("timeout")
-                    break
                 except InitFailure:
-                    print("Init failed")
+                    print("Init failed!")
                     break
                 except RemoteClose:
-                    print("RemoteClose")
+                    print("The remote closed!")
+                    break
+                except NoData:
+                    print("No data further!")
+                    break
+                except ConnectionFailure:
+                    print("Connection failed!")
                     break
                 except:
                     break
             else:
+                print("Timeout!")
                 break
         self.close()
 
