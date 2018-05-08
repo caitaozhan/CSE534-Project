@@ -3,9 +3,8 @@
 - Python3
 - OmegaSwitch for Chrome or Proxifier
 
-## Usage:
-### Run Shadowsocks 
-#### server-side:
+## Run Shadowsocks 
+### server-side:
 ```
 python server.py config_path
 ```
@@ -23,7 +22,7 @@ The server configuration contains the following fields
 
 "key" is used to generate a key to encrypt and decrypt message between the server and the client.
 
-#### client-side:
+### client-side:
 ```
 python server.py config_path
 ```
