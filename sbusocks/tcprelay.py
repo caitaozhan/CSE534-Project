@@ -104,7 +104,6 @@ class TCPRelay:
 
         if not data:
             raise NoData
-        print("receive {} bytes from the remote".format(len(data)))
         # if the executor is the server, the data should be encrypted before sending to the client
         if not self.is_client:
             data = self.cipher.encrypt(data)
