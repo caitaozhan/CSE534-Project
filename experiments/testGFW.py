@@ -3,10 +3,11 @@ import webbrowser
 import time
 from selenium import webdriver
 import numpy as np
-
+import sys
+import os
 
 option = webdriver.ChromeOptions()
-option.add_extension('Proxy-SwitchyOmega_v2.5.9.crx')
+option.add_extension(os.getcwd()+'/Proxy-SwitchyOmega_v2.5.9.crx')
 browser = webdriver.Chrome(chrome_options=option)
 browser.get('chrome://extensions/')
 
