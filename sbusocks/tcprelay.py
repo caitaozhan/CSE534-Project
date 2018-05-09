@@ -132,10 +132,10 @@ class TCPRelay:
         else:
             # handle normal streams
             if self.is_client:
-                # data is from the server to the client
+                # data is from the local application to client
                 data = self.cipher.encrypt(data)
             else:
-                # data is from the client to local applications
+                # data is from the client to server
                 data = self.cipher.decrypt(data)
             self.remote_conn.sendall(data)
 
@@ -155,25 +155,33 @@ class TCPRelay:
             read_ready = select.select(rlist,[],[],self.TIMEOUT)
             
             if read_ready[0]:
-                conn = read_ready[0][0]
-                try:
-                    if conn == self.local_conn:
-                        self.handle_local_stream(conn)
-                    else:
-                        self.handle_remote_stream(conn)
-                except InitFailure:
-                    print("Init failed!")
-                    break
-                except RemoteClose:
-                    print("The remote closed!")
-                    break
-                except NoData:
-                    print("No data further!")
-                    break
-                except ConnectionFailure:
-                    print("Connection failed!")
-                    break
-                except:
+                error = False
+                for conn in read_ready[0]:
+                    try:
+                        if conn == self.local_conn:
+                            self.handle_local_stream(conn)
+                        else:
+                            self.handle_remote_stream(conn)
+                    except InitFailure:
+                        print("Init failed!")
+                        error = True
+                        break
+                    except RemoteClose:
+                        print("The remote closed!")
+                        error = True
+                        break
+                    except NoData:
+                        print("No data further!")
+                        error = True
+                        break
+                    except ConnectionFailure:
+                        print("Connection failed!")
+                        error = True
+                        break
+                    except:
+                        error = True
+                        break
+                if error:
                     break
             else:
                 print("Timeout!")
