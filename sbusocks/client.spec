@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['client.py'],
-             pathex=['/Volumes/Transcend/Users/Atom/Documents/GitHub/CSE534-Project/sbusocks'],
+             pathex=['C:\\Code\\CSE534-Project\\sbusocks'],
              binaries=[],
              datas=[],
              hiddenimports=[],
