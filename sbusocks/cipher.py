@@ -40,7 +40,7 @@ class Cipher:
 
 def test():
     
-    message = "哈哈"
+    message = "You cannot see me!"
     key ="LKjp9s3fD"
     cipher = Cipher(key)
     en = cipher.encrypt(message)
