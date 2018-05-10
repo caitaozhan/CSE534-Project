@@ -1,5 +1,5 @@
 import hashlib
-import numpy as np
+import random
 
 class Cipher:
     def __init__(self, key):
@@ -10,8 +10,9 @@ class Cipher:
             self.key = key
         m = hashlib.sha1(self.key).hexdigest().encode()
         self.seed = int.from_bytes(m, byteorder='little') % 2**32
-        np.random.seed(self.seed)
-        self.encrypt_key = np.random.permutation(256)
+        random.seed(self.seed)
+        self.encrypt_key = list(range(256))
+        random.shuffle(self.encrypt_key)
         self.decrypt_key = {self.encrypt_key[i]:i for i in range(256)}
 
 
@@ -41,11 +42,12 @@ class Cipher:
 def test():
     
     message = "You cannot see me!"
-    key ="LKjp9s3fD"
+    key ="IJhphGHSLJDLFJSJjljlkajsf"
     cipher = Cipher(key)
     en = cipher.encrypt(message)
     print(en)
-    de = cipher.decrypt(en)
+    cipher2 = Cipher(key)
+    de = cipher2.decrypt(en)
     print(de.decode())
 
 if __name__ == '__main__':
