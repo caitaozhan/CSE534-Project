@@ -54,3 +54,5 @@ The configuration of Omega is as follows:
 ![snapshot](figure/omega.png)
 
 ## Mechanism
+![snapshot](figure/architecture.png)
+
