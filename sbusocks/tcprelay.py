@@ -187,7 +187,7 @@ class TCPRelay:
                         error = True
                         break
                     except IdentificationFailure:
-                        print("Key Error!")
+                        print("Key Error from {}".format(conn.getpeername()))
                         error = True
                         break
                     except:
