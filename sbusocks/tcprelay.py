@@ -55,45 +55,50 @@ class TCPRelay:
         self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.remote_conn.connect((self.remote_addr, self.remote_port))
         print("Successfully connect to the server!")
-        self.stage = self.STAGE_STREAM
+        self.stage = self.STAGE_CONNECTION
 
 
     def handle_connection(self, data):
         # server: handshake with client
         #         store the real destination
-        if data[:3] == b'\x05\x01\x00':
-            if data[3] == 0x03:
-                domain_len = int(data[4])
-                self.domain = data[5:5 + domain_len]
-                self.remote_addr = socket.gethostbyname(self.domain)
-                self.server_port = int_from_bytes(data[-2:])
-                print("Connecting {}:{} from {}:{}".format(self.domain, self.server_port, self.local_addr, self.local_port))
-                self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-            elif data[3] == 0x01:
-                seg = []
-                for i in range(4):
-                    seg.append(str(int(data[4+i])))
-                self.remote_addr = '.'.join(seg)
-                self.server_port = int_from_bytes(data[-2:])
-                print("Connecting {}:{} from {}:{}".format(self.remote_addr, self.server_port, self.local_addr, self.local_port))
-                self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            else:
-                raise ConnectionFailure
-            
-            try:
-                self.remote_conn.connect((self.remote_addr, self.server_port))
-                message = b'\x05\x00\x00\x01\x00\x00\x00\x00\x00\x00'
-                message = self.cipher.encrypt(message)
-                self.local_conn.send(message)
-                self.stage = self.STAGE_STREAM
-            except:
-                raise ConnectionFailure
+        if self.is_client:
+            self.remote_conn.sendall(data)
+            self.stage = self.STAGE_STREAM
 
         else:
-            message = b'\x05\x05\x00\x01\x00\x00\x00\x00\x00\x00'
-            message = self.cipher.encrypt(message)
-            self.local_conn.send(message)
+            if data[:3] == b'\x05\x01\x00':
+                if data[3] == 0x03:
+                    domain_len = int(data[4])
+                    self.domain = data[5:5 + domain_len]
+                    self.remote_addr = socket.gethostbyname(self.domain)
+                    self.server_port = int_from_bytes(data[-2:])
+                    print("Connecting {}:{} from {}:{}".format(self.domain, self.server_port, self.local_addr, self.local_port))
+                    self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+                elif data[3] == 0x01:
+                    seg = []
+                    for i in range(4):
+                        seg.append(str(int(data[4+i])))
+                    self.remote_addr = '.'.join(seg)
+                    self.server_port = int_from_bytes(data[-2:])
+                    print("Connecting {}:{} from {}:{}".format(self.remote_addr, self.server_port, self.local_addr, self.local_port))
+                    self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                else:
+                    raise ConnectionFailure
+                
+                try:
+                    self.remote_conn.connect((self.remote_addr, self.server_port))
+                    message = b'\x05\x00\x00\x01\x00\x00\x00\x00\x00\x00'
+                    message = self.cipher.encrypt(message)
+                    self.local_conn.send(message)
+                    self.stage = self.STAGE_STREAM
+                except:
+                    raise ConnectionFailure
+
+            else:
+                message = b'\x05\x05\x00\x01\x00\x00\x00\x00\x00\x00'
+                message = self.cipher.encrypt(message)
+                self.local_conn.send(message)
 
 
     def handle_remote_stream(self, sock):
@@ -123,12 +128,17 @@ class TCPRelay:
             raise NoData
 
         # handle handshake message
+
         if self.stage == self.STAGE_INIT:
             # this means the data is from the local apps
             self.handle_init(data)
         elif self.stage == self.STAGE_CONNECTION:
             # this means the data is from the client, we should decrypt it first.
-            data = self.cipher.decrypt(data)
+            if self.is_client:
+                check = True
+            else:
+                check = False
+            data = self.cipher.decrypt(data, check)
             self.handle_connection(data)
         else:
             # handle normal streams
