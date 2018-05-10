@@ -45,7 +45,6 @@ class Cipher:
 
         if check:
             if decrypt_data[:len(self.IDENTIFICATION)] != self.IDENTIFICATION:
-                print(decrypt_data[:len(self.IDENTIFICATION)])
                 raise IdentificationFailure
 
             decrypt_data = decrypt_data[len(self.IDENTIFICATION):]
