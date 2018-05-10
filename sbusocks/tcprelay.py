@@ -1,5 +1,6 @@
 import socket
 from cipher import Cipher
+from cipher import IdentificationFailure
 import select
 from utility import int_from_bytes
 
@@ -176,6 +177,10 @@ class TCPRelay:
                         break
                     except ConnectionFailure:
                         print("Connection failed!")
+                        error = True
+                        break
+                    except IdentificationFailure:
+                        print("Key Error!")
                         error = True
                         break
                     except:

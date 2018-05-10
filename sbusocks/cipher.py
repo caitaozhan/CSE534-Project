@@ -1,7 +1,11 @@
 import hashlib
 import random
 
+class IdentificationFailure(Exception):
+    pass
+
 class Cipher:
+    IDENTIFICATION = b'jl80ahs;df254LA;KFJ,mxnc9378'
     def __init__(self, key):
         self.method = None
         try:
@@ -17,11 +21,11 @@ class Cipher:
 
 
     def encrypt(self, data):
-        
         try:
             data = data.encode()
         except:
             pass
+        data = self.IDENTIFICATION + data
         encrpted_data = bytes([self.encrypt_key[bit] for bit in data])
         return encrpted_data
         
@@ -33,7 +37,13 @@ class Cipher:
             data = data.encode()
         except:
             pass
+
         decrypt_data = bytes([self.decrypt_key[bit] for bit in data])
+
+        if decrypt_data[:len(self.IDENTIFICATION)] != self.IDENTIFICATION:
+            raise IdentificationFailure
+
+        decrypt_data = decrypt_data[len(self.IDENTIFICATION):]
 
         return decrypt_data
         
