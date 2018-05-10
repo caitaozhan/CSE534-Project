@@ -51,6 +51,6 @@ The server configuration contains the following fields
 We assume applications support socks5 protocol. Chrome with OmegaSwitch extension support socks5. And using Proxifier, we can make all applications support socks5.
 
 The configuration of Omega is as follows:
-![snapshot](omega.png)
+![snapshot](figure/omega.png)
 
 ## Mechanism
