@@ -3,7 +3,7 @@
 - Python3
 - OmegaSwitch for Chrome or Proxifier
 
-## Run Shadowsocks 
+## Run SbuSocks 
 ### server-side:
 ```
 python server.py config_path
@@ -47,7 +47,7 @@ The server configuration contains the following fields
 "key" is used to generate a key to encrypt and decrypt message between the server and the client. This key should be the same with the key on the server.
 
 
-## Use Shadowsocks
+## Use SbuSocks
 We assume applications support socks5 protocol. Chrome with OmegaSwitch extension support socks5. And using Proxifier, we can make all applications support socks5.
 
 The configuration of Omega is as follows:
