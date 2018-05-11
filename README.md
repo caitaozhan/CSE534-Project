@@ -1,4 +1,4 @@
-# CSE 534 Project: SBUSocks
+# CSE 534 Project: SbuSocks
 ## Requirements:
 - Python3
 - OmegaSwitch for Chrome or Proxifier
