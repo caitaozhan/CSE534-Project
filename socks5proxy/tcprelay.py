@@ -1,5 +1,4 @@
 import socket
-from cipher import Cipher
 import select
 from utility import int_from_bytes
 
@@ -40,8 +39,6 @@ class TCPRelay:
         self.stage = self.STAGE_INIT
         #else:
         #self.stage = self.STAGE_CONNECTION
-
-        self.cipher = config['cipher']
         self.domain = None
     
 
@@ -83,7 +80,6 @@ class TCPRelay:
             try:
                 self.remote_conn.connect((self.remote_addr, self.server_port))
                 message = b'\x05\x00\x00\x01\x00\x00\x00\x00\x00\x00'
-                message = self.cipher.encrypt(message)
                 self.local_conn.send(message)
                 self.stage = self.STAGE_STREAM
             except:
@@ -91,7 +87,6 @@ class TCPRelay:
 
         else:
             message = b'\x05\x05\x00\x01\x00\x00\x00\x00\x00\x00'
-            message = self.cipher.encrypt(message)
             self.local_conn.send(message)
 
 
@@ -106,11 +101,6 @@ class TCPRelay:
             raise NoData
         
         # if the executor is the server, the data should be encrypted before sending to the client
-        if not self.is_client:
-            data = self.cipher.encrypt(data)
-        else:
-            data = self.cipher.decrypt(data)
-        #print("Receiving data from the remote")
         self.local_conn.sendall(data)
 
 
@@ -128,16 +118,9 @@ class TCPRelay:
             self.handle_init(data)
         elif self.stage == self.STAGE_CONNECTION:
             # this means the data is from the client, we should decrypt it first.
-            data = self.cipher.decrypt(data)
             self.handle_connection(data)
         else:
             # handle normal streams
-            if self.is_client:
-                # data is from the server to the client
-                data = self.cipher.encrypt(data)
-            else:
-                # data is from the client to local applications
-                data = self.cipher.decrypt(data)
             self.remote_conn.sendall(data)
 
     def close(self):
