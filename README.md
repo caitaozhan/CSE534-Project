@@ -53,6 +53,10 @@ We assume applications support socks5 protocol. Chrome with OmegaSwitch extensio
 The configuration of Omega is as follows:
 ![snapshot](figure/omega.png)
 
+## Documentation
+[Slides](Report/slides.pdf)
+[Report](Report/report.pdf)
+
 ## Mechanism
 SbuSocks' Architecture:
 ![architecture](figure/architecture.png)
