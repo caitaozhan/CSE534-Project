@@ -8,11 +8,14 @@ from utility import int_from_bytes
 class InitFailure(Exception):
     pass
 
+
 class RemoteClose(Exception):
     pass
 
+
 class NoData(Exception):
     pass
+
 
 class ConnectionFailure(Exception):
     pass
@@ -33,7 +36,7 @@ class TCPRelay:
         if self.is_client:
             self.remote_addr = config["server_addr"]
             self.remote_port = config["server_port"]
-        
+
         self.local_conn = local_sock
         self.remote_conn = None
         self.config = config
@@ -44,7 +47,6 @@ class TCPRelay:
 
         self.cipher = config['cipher']
         self.domain = None
-    
 
     def handle_init(self, data):
         # client: handshake with local applications
@@ -57,7 +59,6 @@ class TCPRelay:
         print("Successfully connect to the server!")
         self.stage = self.STAGE_CONNECTION
 
-
     def handle_connection(self, data):
         # server: handshake with client
         #         store the real destination
@@ -67,20 +68,34 @@ class TCPRelay:
                 self.domain = data[5:5 + domain_len]
                 self.remote_addr = socket.gethostbyname(self.domain)
                 self.server_port = int_from_bytes(data[-2:])
-                print("Connecting {}:{} from {}:{}".format(self.domain, self.server_port, self.local_addr, self.local_port))
-                self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                print(
+                    "Connecting {}:{} from {}:{}".format(
+                        self.domain, self.server_port, self.local_addr,
+                        self.local_port
+                    )
+                )
+                self.remote_conn = socket.socket(
+                    socket.AF_INET, socket.SOCK_STREAM
+                )
 
             elif data[3] == 0x01:
                 seg = []
                 for i in range(4):
-                    seg.append(str(int(data[4+i])))
+                    seg.append(str(int(data[4 + i])))
                 self.remote_addr = '.'.join(seg)
                 self.server_port = int_from_bytes(data[-2:])
-                print("Connecting {}:{} from {}:{}".format(self.remote_addr, self.server_port, self.local_addr, self.local_port))
-                self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                print(
+                    "Connecting {}:{} from {}:{}".format(
+                        self.remote_addr, self.server_port, self.local_addr,
+                        self.local_port
+                    )
+                )
+                self.remote_conn = socket.socket(
+                    socket.AF_INET, socket.SOCK_STREAM
+                )
             else:
                 raise ConnectionFailure
-            
+
             try:
                 self.remote_conn.connect((self.remote_addr, self.server_port))
                 message = b'\x05\x00\x00\x01\x00\x00\x00\x00\x00\x00'
@@ -95,11 +110,10 @@ class TCPRelay:
             message = self.cipher.encrypt(message)
             self.local_conn.send(message)
 
-
     def handle_remote_stream(self, sock):
         # receive data from the remote
         # if the executor is the server, "remote" means the true destination,
-        # else "remote" means the server. 
+        # else "remote" means the server.
 
         data = sock.recv(self.BUF_SIZE)
 
@@ -113,11 +127,10 @@ class TCPRelay:
         #print("Receiving data from the remote")
         self.local_conn.sendall(data)
 
-
     def handle_local_stream(self, sock):
         # receive data from the local
         # if the executor is the server, "local" means the client,
-        # else "local" means the local apps. 
+        # else "local" means the local apps.
         data = sock.recv(self.BUF_SIZE)
         if not data:
             raise NoData
@@ -133,7 +146,7 @@ class TCPRelay:
                 data = self.cipher.encrypt(data, True)
                 self.remote_conn.sendall(data)
                 self.stage = self.STAGE_STREAM
-            
+
             else:
                 data = self.cipher.decrypt(data, True)
                 self.handle_connection(data)
@@ -160,8 +173,8 @@ class TCPRelay:
             if self.remote_conn:
                 rlist.append(self.remote_conn)
 
-            read_ready = select.select(rlist,[],[],self.TIMEOUT)
-            
+            read_ready = select.select(rlist, [], [], self.TIMEOUT)
+
             if read_ready[0]:
                 error = False
                 for conn in read_ready[0]:
@@ -199,4 +212,3 @@ class TCPRelay:
                 print("Timeout!")
                 break
         self.close()
-
