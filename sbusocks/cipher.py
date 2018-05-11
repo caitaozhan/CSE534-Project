@@ -5,15 +5,14 @@ class IdentificationFailure(Exception):
     pass
 
 class Cipher:
-    IDENTIFICATION = b'jl80ahs;df254LA;KFJ,mxnc9378'
     def __init__(self, key):
         self.method = None
         try:
             self.key = key.encode()
         except:
             self.key = key
-        m = hashlib.sha1(self.key).hexdigest().encode()
-        self.seed = int.from_bytes(m, byteorder='little') % 2**32
+        self.identification = hashlib.sha1(self.key).hexdigest().encode()
+        self.seed = int.from_bytes(self.identification, byteorder='little') % 2**32
         random.seed(self.seed)
         self.encrypt_key = list(range(256))
         random.shuffle(self.encrypt_key)
@@ -27,7 +26,7 @@ class Cipher:
             pass
         
         if check:   
-            data = self.IDENTIFICATION + data
+            data = self.identification + data
 
         encrpted_data = bytes([self.encrypt_key[bit] for bit in data])
         return encrpted_data
@@ -44,10 +43,10 @@ class Cipher:
         decrypt_data = bytes([self.decrypt_key[bit] for bit in data])
 
         if check:
-            if decrypt_data[:len(self.IDENTIFICATION)] != self.IDENTIFICATION:
+            if decrypt_data[:len(self.identification)] != self.identification:
                 raise IdentificationFailure
 
-            decrypt_data = decrypt_data[len(self.IDENTIFICATION):]
+            decrypt_data = decrypt_data[len(self.identification):]
 
         return decrypt_data
         
@@ -58,6 +57,7 @@ def test():
     message = "You cannot see me!"
     key ="IJhphGHSLJDLFJSJjljlkajsf"
     cipher = Cipher(key)
+    print(cipher.identification)
     en = cipher.encrypt(message, True)
     print(en)
     cipher2 = Cipher(key)
