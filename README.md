@@ -55,6 +55,9 @@ The configuration of Omega is as follows:
 
 ## Mechanism
 ![architecture](figure/architecture.png)
+SbuSocks' Architecture
 ![client](figure/client.png)
+Finite-state machine model of client TCP Relay
 ![server](figure/server.png)
+Finite-state machine model of server TCP Relay
 
