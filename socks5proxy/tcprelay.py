@@ -35,10 +35,7 @@ class TCPRelay:
         self.local_conn = local_sock
         self.remote_conn = None
         self.config = config
-        #if self.is_client:
         self.stage = self.STAGE_INIT
-        #else:
-        #self.stage = self.STAGE_CONNECTION
         self.domain = None
     
 
@@ -48,11 +45,12 @@ class TCPRelay:
             self.local_conn.send(b'\x05\xff')
             raise InitFailure
         self.local_conn.send(b'\x05\x00')
-        #self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #self.remote_conn.connect((self.remote_addr, self.remote_port))
         print("Successfully connect to the server!")
         self.stage = self.STAGE_CONNECTION
-
+        if self.is_client:
+            self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.remote_conn.connect((self.remote_addr, self.remote_port))
+            self.stage = self.STAGE_STREAM
 
     def handle_connection(self, data):
         # server: handshake with client

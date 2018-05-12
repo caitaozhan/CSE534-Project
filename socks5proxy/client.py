@@ -25,7 +25,6 @@ class Client:
 
     def new_tcprelay(self, local_sock):
         tcp = TCPRelay(self.config, local_sock)
-        tcp.stage = tcp.STAGE_STREAM
         tcp.run()
 
     def loop(self):
