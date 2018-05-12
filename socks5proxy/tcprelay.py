@@ -41,13 +41,14 @@ class TCPRelay:
 
     def handle_init(self, data):
         # client: handshake with local applications
-        if data != b'\x05\x01\x00':
-            self.local_conn.send(b'\x05\xff')
-            raise InitFailure
-        self.local_conn.send(b'\x05\x00')
-        print("Successfully connect to the server!")
-        self.stage = self.STAGE_CONNECTION
-        if self.is_client:
+        if not self.is_client:
+            if data != b'\x05\x01\x00':
+                self.local_conn.send(b'\x05\xff')
+                raise InitFailure
+            self.local_conn.send(b'\x05\x00')
+            print("Successfully connect to the server!")
+            self.stage = self.STAGE_CONNECTION
+        else:
             self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.remote_conn.connect((self.remote_addr, self.remote_port))
             self.stage = self.STAGE_STREAM
