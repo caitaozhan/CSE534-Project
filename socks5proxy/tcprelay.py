@@ -95,7 +95,7 @@ class TCPRelay:
         # else "remote" means the server. 
 
         data = sock.recv(self.BUF_SIZE)
-
+        print(data)
         if not data:
             raise NoData
         
