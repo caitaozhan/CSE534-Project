@@ -46,11 +46,11 @@ class TCPRelay:
                 self.local_conn.send(b'\x05\xff')
                 raise InitFailure
             self.local_conn.send(b'\x05\x00')
-            print("Successfully connect to the server!")
             self.stage = self.STAGE_CONNECTION
         else:
             self.remote_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.remote_conn.connect((self.remote_addr, self.remote_port))
+            print("Successfully connect to the server!")
             self.stage = self.STAGE_STREAM
 
     def handle_connection(self, data):
