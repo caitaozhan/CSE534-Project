@@ -1,4 +1,9 @@
 # CSE 534 Project: SbuSocks
+## Documentation
+[Slides](Report/Project-slides.pdf)
+
+[Report](Report/Report-sbusocks-break-great-firewall.pdf)
+
 ## Requirements:
 - Python3
 - OmegaSwitch for Chrome or Proxifier
@@ -53,10 +58,6 @@ We assume applications support socks5 protocol. Chrome with OmegaSwitch extensio
 The configuration of Omega is as follows:
 ![snapshot](figure/omega.png)
 
-## Documentation
-[Slides](Report/Project-slides.pdf)
-
-[Report](Report/Report-sbusocks-break-great-firewall.pdf)
 
 ## Mechanism
 SbuSocks' Architecture:
